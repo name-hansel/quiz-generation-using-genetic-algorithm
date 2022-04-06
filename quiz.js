@@ -4,13 +4,13 @@ const { selection, crossover, mutation } = require("./GAutils")
 // Input -> Room: {no. of rows, no. of columns}, Student: { roll no. }, Questions: { total number of questions, number of questions to be alloted }
 // Gene structure -> [row no., column no., [roll no., questions]]
 const POPULATION_SIZE = 300;
-const GENERATION_LIMIT = 300;
-const MUTATION_RATE = 0.05;
+const GENERATION_LIMIT = 1000;
+const MUTATION_RATE = 0.03;
 const TOTAL_NUMBER_OF_QUESTIONS = 20;
 const QUESTIONS_IN_QUIZ = 10;
-const ROWS = 20;
-const COLUMNS = 3;
-const NUMBER_OF_STUDENTS = 60;
+const ROWS = 10;
+const COLUMNS = 8;
+const NUMBER_OF_STUDENTS = 72;
 const EMPTY_SEATS = ROWS * COLUMNS - NUMBER_OF_STUDENTS;
 
 function fitnessFunction(chromosome) {
@@ -33,21 +33,23 @@ function fitnessFunction(chromosome) {
 
     const validNeighbourQuestions = validNeighbours.map(neighbour => getNeighbourQuestions(chromosome, neighbour, ROWS));
 
-    // Common questions for current gene (seat)
-    let commonQuestions = 0;
-
     // Create mapping for current gene's questions
     const geneQuestions = {}
     for (question of questions) geneQuestions[question] = true;
 
+    const commonQuestions = [];
+
     // Check common questions between gene and each neighbour
     for (neighbour of validNeighbourQuestions) {
+      // Common questions for current gene (seat)
+      let currentCommonQuestions = 0;
       for (question of neighbour) {
-        if (geneQuestions[question]) commonQuestions++;
+        if (geneQuestions[question]) currentCommonQuestions++;
       }
+      commonQuestions.push(currentCommonQuestions);
     }
-    // Return avg. common questions between neighbour and seat
-    return commonQuestions;
+    // Return maximum number of common questions
+    return Math.max(...commonQuestions);
   })
 
   // Get average number of common questions for a seat (gene) in this chromosome
